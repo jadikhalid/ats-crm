@@ -1,0 +1,3 @@
+ESN ATS/CRM est une plateforme interne qui combine un ATS (suivi des candidats) et un CRM pour les équipes commerciales et RH d'une ESN : gestion des clients, opportunités, profils, sourcing, matching IA et réponses aux appels d'offres.
+
+Le projet est un monorepo avec un backend Java (Spring Boot, architecture hexagonale), un frontend Angular et une base MySQL, prévu pour un déploiement cible sur Azure avec authentification Microsoft Entra ID en production.
