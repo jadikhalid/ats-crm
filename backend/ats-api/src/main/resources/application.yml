@@ -1,0 +1,92 @@
+spring:
+  application:
+    name: esn-ats-crm
+
+  # Profil `azure` : charge automatiquement `prod` (Entra + placeholders Azure sans dupliquer le YAML)
+  profiles:
+    group:
+      azure:
+        - prod
+
+  config:
+    # Charge le .env à la racine du monorepo (mêmes clés que .env.example)
+    import: optional:file:${ENV_FILE:../../.env}[.properties]
+
+  datasource:
+    # Valeurs lues depuis .env (voir .env.example) ; défauts = dev local sans .env
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:esn_ats}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+    username: ${DB_USER:ats_user}
+    password: ${DB_PASSWORD:ats_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+    show-sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  servlet:
+    multipart:
+      max-file-size: 15MB
+      max-request-size: 16MB
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /api
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+app:
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:4200}
+  security:
+    # jwt-local = filtre JWT développement (défaut) ; oauth2-resource-server = Microsoft Entra ID (profil prod/azure)
+    auth-mode: ${SECURITY_AUTH_MODE:jwt-local}
+    jwt:
+      secret: ${JWT_SECRET:esn-ats-dev-secret-key-change-in-production-32b}
+      expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+    dev-auth-enabled: ${DEV_AUTH_ENABLED:true}
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+      model: ${OPENAI_MODEL:gpt-4o-mini}
+      temperature: ${OPENAI_TEMPERATURE:0.2}
+    claude:
+      api-key: ${ANTHROPIC_API_KEY:}
+      base-url: ${ANTHROPIC_BASE_URL:https://api.anthropic.com}
+      model: ${ANTHROPIC_MODEL:claude-sonnet-4-20250514}
+    default-provider: ${AI_DEFAULT_PROVIDER:openai}
+
+logging:
+  level:
+    root: INFO
+    com.esn.ats: DEBUG
+    org.hibernate.SQL: WARN

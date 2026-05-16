@@ -1,0 +1,56 @@
+---
+# Activé avec : SPRING_PROFILES_ACTIVE=prod
+# Ou en chaîne depuis le groupe de profils : SPRING_PROFILES_ACTIVE=azure (voir application.yml)
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: jdbc:mysql://${AZURE_MYSQL_HOST:${DB_HOST:localhost}}:${AZURE_MYSQL_PORT:${DB_PORT:3306}}/${AZURE_MYSQL_DATABASE:${DB_NAME:esn_ats}}?useSSL=true&requireSSL=true&enabledTLSProtocols=TLSv1.2&serverTimezone=UTC&characterEncoding=UTF-8
+    username: ${AZURE_MYSQL_USER:${DB_USER}}
+    password: ${AZURE_MYSQL_PASSWORD:${DB_PASSWORD}}
+    hikari:
+      maximum-pool-size: ${HIKARI_MAX_POOL:15}
+      minimum-idle: ${HIKARI_MIN_IDLE:3}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Issuer OIDC Entra du tenant — ex. https://login.microsoftonline.com/{tenantId}/v2.0
+          issuer-uri: ${ENTRA_ISSUER_URI:https://login.microsoftonline.com/${ENTRA_TENANT_ID:your-tenant-guid}/v2.0}
+          # Audience (après « Expose an API ») — exemple :
+          # audiences:
+          #   - ${ENTRA_API_AUDIENCE}
+
+app:
+  cors:
+    allowed-origins: ${CORS_ORIGINS:https://your-frontend.azurewebsites.net}
+  security:
+    auth-mode: oauth2-resource-server
+    jwt:
+      # Non utilisées en oauth2-resource-server ; conservées si override local explicite
+      secret: ${JWT_SECRET:-}
+      expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+    dev-auth-enabled: ${DEV_AUTH_ENABLED:false}
+    entra:
+      # Claim où Entra liste les App roles (SPA + API sécurisée)
+      roles-claim: ${ENTRA_ROLES_CLAIM:roles}
+      # Correspondances « scope » access token ↔ autorités Spring (nom du scope défini sous l’API app)
+      scope-to-authority:
+        "ATS.Agent.access": ROLE_AGENT
+        "ATS.Admin.access": ROLE_ADMIN
+        "ATS.Client.access": ROLE_CLIENT
+      # Décommentez après configuration des GUID de groupes (claim groups) :
+      # group-object-id-to-role:
+      #   00000000-0000-0000-0000-aaaaaaaaaaaa: ROLE_AGENT
+      # Tolérance de rodage uniquement si aucun rôle / groupe résolu :
+      bootstrap-roles: ${ENTRA_BOOTSTRAP_ROLES:}
+      fallback-authority: ${ENTRA_FALLBACK_AUTHORITY:}
+
+logging:
+  level:
+    root: INFO
+    com.esn.ats: INFO
+    org.springframework.security: WARN

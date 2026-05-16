@@ -1,0 +1,31 @@
+# Java / Maven
+backend/**/target/
+*.class
+*.jar
+*.war
+*.log
+hs_err_pid*
+
+# Node / Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+*.tsbuildinfo
+
+# IDE
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+*.swp
+.DS_Store
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+**/application-local.yml
+**/application-secrets.yml
+
+# Azure / local
+.azure/
