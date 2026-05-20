@@ -1,0 +1,818 @@
+
+I- Titre de l'appli:
+Plateforme interne **ATS** (Applicant Tracking System) et **CRM** pour ESN, destinée aux équipes **Sales** et **RH** : sourcing candidats, matching IA, gestion des opportunités, clients et candidatures.
+
+
+
+II- Logique métier et sources de prompt IA :
+Voici le déroulement **tel qu’il serait une fois l’application complète**, avec toutes les capacités prévues (CRM, ATS, candidatures, matching IA, RFP, sourcing, tableaux de bord, notifications, admin). Les rôles sont ceux de la vision produit : **Client**, **RH**, **Commercial (Sales)**, **Manager**, **Administrateur**.
+
+---
+
+## Utilisateur client (entreprise cliente de l’ESN)
+
+C’est un contact chez le client final : responsable achat, manager métier, etc. Il ne gère pas le vivier de candidats ; il **pilote ses besoins** et **valide les propositions** de l’ESN.
+
+**Connexion**  
+Il ouvre l’application et se connecte avec son compte **Microsoft Entra** (SSO entreprise). Il arrive sur son **portail client**.
+
+**Suivi des besoins**  
+Il consulte la liste de ses **opportunités / missions** ouvertes (en cours, pourvues, closes). Pour chaque besoin, il voit le titre, le profil recherché, le statut, le commercial référent côté ESN.
+
+**Consultation des profils proposés**  
+Pour une mission donnée, il accède aux **profils short-listés** par l’ESN (anonymisés ou partiels selon la politique RGPD). Il peut lire le résumé, les compétences clés et, le cas échéant, un **score d’adéquation** et la justification (pourquoi ce profil correspond au besoin).
+
+**Validation et retours**  
+Il peut **accepter**, **refuser** ou **demander une modification** sur un profil (commentaire, créneaux d’entretien). Ces actions déclenchent des **notifications** chez le commercial et le RH assignés.
+
+**Documents et appels d’offres**  
+S’il participe à un **appel d’offres**, il peut déposer ou consulter des documents RFP partagés, suivre l’avancement de la réponse ESN (sans voir les brouillons internes sensibles), et valider la version finale destinée au client.
+
+**Historique et traçabilité**  
+Il consulte l’**historique** des échanges sur un besoin : profils proposés, statuts, dates, qui a validé quoi.
+
+**Fin de session**  
+Il se déconnecte. Toutes ses actions sont **auditées** (qui a vu ou validé quel profil, quand).
+
+---
+
+## Responsable RH (recruteur / manager RH)
+
+Il gère le **vivier candidats**, le **pipeline des candidatures** et le **sourcing**. Il travaille en lien avec les commerciaux sur les besoins clients.
+
+**Connexion**  
+SSO Entra → **tableau de bord RH** : candidats actifs, candidatures en cours, entretiens à planifier, alertes.
+
+**Sourcing et alimentation du vivier**  
+- Lance ou consulte des **campagnes de sourcing** (critères : compétences, séniorité, localisation).  
+- **Importe des CV** (PDF, Word) : stockage sécurisé (Blob), extraction texte, **profil structuré par IA** (compétences, expérience, langues). Il **relit et corrige** avant validation.  
+- **Enrichit** les fiches (statut, disponibilité, TJM, notes internes).  
+- Utilise la **recherche avancée** (full-text, filtres compétences / secteur).
+
+**Gestion des candidatures (pipeline)**  
+Pour chaque **opportunité** liée à un besoin client :  
+- Ouvre le **kanban** des candidatures (étapes : à qualifier, présélectionné, proposé au client, entretien client, offre, refusé, etc.).  
+- Fait avancer les cartes, ajoute des **notes**, planifie des **entretiens**.  
+- Reçoit des **notifications** (nouveau besoin, profil validé par le client, relance).
+
+**Matching et scoring**  
+- Sur une opportunité : lance un **matching multi-candidats** (scores + points forts / faiblesses).  
+- Compare plusieurs profils, **enregistre** les scores pour historique et audit IA.  
+- Propose les meilleurs profils au **commercial** ou directement dans la short-list **client**.
+
+**Collaboration**  
+- Consulte le **CRM** (client, contexte mission) sans forcément le modifier.  
+- Échange via l’historique candidature / commentaires internes.
+
+**Reporting RH**  
+- Consulte ses indicateurs : délai de traitement, taux de conversion par étape, volume de CV importés.
+
+**Fin de journée**  
+Déconnexion. Les actions sensibles (export données, changement de statut) sont tracées dans l’**audit trail**.
+
+---
+
+## Responsable commercial / Sales manager
+
+Il pilote le **portefeuille clients**, les **opportunités**, les **réponses aux appels d’offres** et la **mise en avant des profils** vers le client.
+
+**Connexion**  
+SSO Entra → **tableau de bord commercial** : opportunités ouvertes, RFP en cours, profils à proposer, relances client.
+
+**CRM — clients et contacts**  
+- Crée ou met à jour un **compte client** (entreprise, secteur, contacts).  
+- Gère les **contacts** (décideurs, acheteurs, managers métier) et les associe aux opportunités.
+
+**CRM — opportunités (besoins / missions)**  
+- Crée une **opportunité** : titre, description, profil recherché, budget, échéance, statut.  
+- Assigne un **référent RH** sur le besoin.  
+- Suit l’avancement : ouverte, en sourcing, profils proposés, pourvue, perdue.
+
+**Matching et proposition client**  
+- Sur une opportunité : consulte les **scores IA** (batch ou profil par profil).  
+- Constitue la **short-list** à présenter au client.  
+- Envoie la proposition ; le **client valide** dans son portail.  
+- Suit les retours et ajuste avec le RH (nouveaux profils, relances).
+
+**Appels d’offres (RFP / AO)**  
+- **Importe** le PDF ou document RFP → l’IA **extrait les exigences** (checklist structurée).  
+- Utilise l’**assistant de rédaction** : brouillon de réponse par sections, **éditable** par le commercial.  
+- Soumet le brouillon au **manager** pour validation.  
+- Gère les **versions** de la réponse et l’historique avant envoi au client.
+
+**Sourcing (vue commerciale)**  
+- Peut lancer ou suivre une campagne sourcing liée à un besoin urgent.  
+- Consulte les résultats pour alimenter rapidement une short-list.
+
+**Exports et communication**  
+- **Exporte** une short-list (PDF / Excel) pour réunion client.  
+- Reçoit des **notifications** (validation client, nouveau candidat matchant, échéance RFP).
+
+**Reporting commercial**  
+- Indicateurs : pipeline opportunités, taux de conversion, délai moyen de proposition (time-to-submit), missions pourvues.
+
+**Fin de session**  
+Déconnexion. Accès limité aux données RH très sensibles selon les droits (RBAC).
+
+---
+
+## Manager (RH ou Sales — rôle transverse)
+
+Souvent un **responsable d’équipe** qui ne fait pas tout le opérationnel mais **valide, pilote et arbitre**.
+
+**Connexion**  
+SSO Entra → **tableau de bord manager** : KPIs globaux ou par équipe.
+
+**Supervision**  
+- Vue consolidée : opportunités en retard, candidatures bloquées, RFP à valider.  
+- **Valide** les brouillons de réponse RFP avant envoi client.  
+- Peut **valider** une short-list exceptionnelle ou un passage d’étape sensible dans le pipeline.
+
+**Pilotage**  
+- Consulte les **tableaux de bord** : fill rate, time-to-submit, volume sourcing, coûts / usage IA.  
+- Filtre par commercial, recruteur, client ou période.  
+- Identifie les goulets (trop de CV non traités, RFP en attente de validation).
+
+**Notifications**  
+Alertes sur validations en attente, dépassement de délais, anomalies (échec IA, quota tokens).
+
+**Fin de session**  
+Déconnexion. Droits en lecture étendue + validation ; pas forcément toutes les actions admin.
+
+---
+
+## Administrateur
+
+Il assure le **fonctionnement**, la **sécurité** et le **paramétrage** de la plateforme pour toute l’ESN.
+
+**Connexion**  
+SSO Entra avec rôle **Admin** → **console d’administration**.
+
+**Utilisateurs et droits**  
+- Gère les **comptes** et l’association aux rôles (Client, RH, Sales, Manager, Admin).  
+- Synchronise ou mappe les groupes **Entra ID** vers les rôles applicatifs.  
+- Définit qui accède à quels clients ou périmètres (si multi-entités).
+
+**Référentiels**  
+- Compétences, statuts candidature, statuts opportunité, secteurs, types de mission.  
+- Modèles de documents, trames RFP.
+
+**Paramétrage IA**  
+- Choisit le **provider** (OpenAI / Azure OpenAI / Claude) par cas d’usage (CV, matching, RFP long).  
+- Configure modèles, limites, **anonymisation** avant envoi IA.  
+- Consulte les **logs IA** (audit : modèle, tokens, latence, utilisateur) pour conformité et coûts.
+
+**Infrastructure et données**  
+- Paramètres de stockage (Blob CV / RFP), rétention, sauvegardes.  
+- Consulte l’**audit trail** global (qui a fait quoi sur quelle entité).  
+- Gère les exports sensibles et les politiques RGPD.
+
+**Support opérationnel**  
+- Peut intervenir sur les données (correction, réassignation) en cas d’incident.  
+- Consulte la **santé** de l’application (monitoring, alertes) en production Azure.
+
+**Fin de session**  
+Déconnexion. Toutes les actions admin sont tracées de façon renforcée.
+
+---
+
+## Comment les parcours se croisent (vue simple)
+
+1. Le **commercial** ouvre une **opportunité** et assigne le **RH**.  
+2. Le **RH** source, importe des CV, qualifie et fait avancer le **pipeline candidatures**.  
+3. Le **matching IA** aide RH et commercial à choisir les profils.  
+4. Le **commercial** constitue la short-list ; le **client** valide dans son portail.  
+5. Pour un **AO**, le commercial utilise le module **RFP** ; le **manager** valide la réponse.  
+6. L’**admin** maintient utilisateurs, rôles, IA et conformité ; les **managers** pilotent par les KPIs.
+
+---
+
+## Connexion commune (tous les profils)
+
+En production complète, tout le monde se connecte via **Microsoft Entra ID** (pas de mot de passe local). Le menu et les écrans s’adaptent au **rôle** : un même outil, des parcours différents selon la fonction.
+
+
+III- Architecture cible :
+
+# Plan d'architecture — ESN ATS/CRM (version cible )
+
+Document de référence en langage simple. Décrit l’application **une fois toutes les fonctionnalités livrées**, avec les rôles, domaines métier et technologies retenus.
+
+---
+
+## 1. Objectif du produit
+
+Plateforme interne pour une **ESN** qui unifie :
+
+- **ATS** : vivier candidats, CV, candidatures, sourcing, matching IA.
+- **CRM** : comptes clients, contacts, opportunités (besoins / missions).
+- **RFP** : appels d’offres, extraction d’exigences, réponses assistées par IA.
+- **Pilotage** : tableaux de bord, KPIs, validations manager.
+
+**Principes**
+
+- L’**IA assiste** (parse CV, score, brouillon RFP) ; l’**humain valide** toujours.
+- **API-first** : le front et d’éventuels intégrateurs consomment la même API REST.
+- **Sécurité by design** : RBAC, audit, secrets hors code, SSO Entra en production.
+- **Évolutivité Azure** : hébergement cloud Microsoft aligné avec le groupe.
+
+---
+
+## 2. Personas et rôles
+
+| Rôle | Qui | Périmètre principal |
+|------|-----|---------------------|
+| **Client** | Contact chez l’entreprise cliente | Ses opportunités, short-lists, validations, documents partagés |
+| **RH** | Recruteur | Candidats, CV, candidatures, sourcing, matching, pipeline kanban |
+| **Commercial (Sales)** | Account manager | Clients, contacts, opportunités, matching, RFP, propositions client |
+| **Manager** | Responsable RH ou Sales | KPIs, validations (RFP, étapes sensibles), supervision équipe |
+| **Administrateur** | IT / référent applicatif | Utilisateurs, rôles, référentiels, IA, audit, paramètres plateforme |
+
+**Authentification**
+
+- **Production** : Microsoft **Entra ID** (SSO), JWT validé par l’API (OAuth2 Resource Server).
+- **Développement** : mode JWT local optionnel pour tests sans tenant Entra.
+
+Les menus, routes et endpoints sont filtrés par **rôle** (RBAC côté API et guards côté Angular).
+
+---
+
+## 3. Domaines métier (bounded contexts)
+
+Chaque domaine = module logique backend + feature frontend.
+
+| Domaine | Responsabilité | Entités clés |
+|---------|----------------|--------------|
+| **Auth & utilisateurs** | Connexion, profil, rôles | User, Role |
+| **CRM — Clients** | Comptes entreprise, contacts | Account, Contact |
+| **CRM — Opportunités** | Besoins / missions liés à un client | Opportunity |
+| **ATS — Candidats** | Profils, compétences, documents CV | Candidate, CandidateSkill, ResumeDocument |
+| **ATS — Candidatures** | Lien candidat ↔ opportunité, pipeline | Application (statuts, historique) |
+| **Matching** | Score besoin ↔ profil, justification | MatchScore (+ journal IA) |
+| **Sourcing** | Campagnes, critères, résultats | SourcingCampaign, SourcingResult |
+| **RFP** | AO, extraction exigences, réponses | RfpDocument, RfpResponse (versions) |
+| **IA** | Parsing CV, scoring, analyse RFP | Port `AiService`, logs `ai_request_log` |
+| **Audit** | Traçabilité actions et révisions | AuditRevision |
+| **Reporting** | KPIs manager / commercial / RH | Agrégations, exports |
+
+**Relations centrales**
+
+```
+Client (Account) ──< Opportunity ──< Application >── Candidate
+                      │                    │
+                      └── MatchScore ──────┘
+Opportunity / Client ── RfpDocument ── RfpResponse
+SourcingCampaign ── SourcingResult ──> Candidate
+```
+
+---
+
+## 4. Vue d’ensemble technique
+
+```
+[Navigateur]
+    │
+    ▼
+[Angular SPA]  ──HTTPS──▶  [Azure Front Door / CDN]
+                                │
+                                ▼
+                         [Container Apps / App Service]
+                                │
+                    ┌───────────┼───────────┐
+                    ▼           ▼           ▼
+              [API REST]   [Key Vault]  [Blob Storage]
+                    │                      (CV, RFP)
+                    ▼
+         [Application + Domaine]
+                    │
+        ┌───────────┼───────────┐
+        ▼           ▼           ▼
+   [MySQL 8]   [OpenAI /      [Entra ID]
+               Azure OpenAI /
+               Claude]
+```
+
+- **Front** : une SPA Angular, pas de rendu serveur métier.
+- **Back** : une API REST Spring Boot (modular monolith hexagonal).
+- **Données** : MySQL relationnel + fichiers lourds en Blob.
+- **IA** : services externes derrière un port domaine, clés dans Key Vault.
+- **Identité** : Entra ID pour tous les utilisateurs en prod.
+
+---
+
+## 5. Stack technique
+
+| Couche | Choix | Rôle |
+|--------|-------|------|
+| Frontend | Angular 19, standalone, lazy routes | UI par features, MSAL pour Entra |
+| Backend | Java 21, Spring Boot 3.4 | API, sécurité, transactions |
+| Build backend | Maven multi-modules | Séparation domaine / infra / API |
+| BDD | MySQL 8 (Azure Flexible Server en prod) | Données relationnelles |
+| Migrations | Flyway | Schéma versionné, reproductible |
+| Persistance | JPA (adapters uniquement) | Mapping entité ↔ domaine |
+| Fichiers | Azure Blob Storage | CV, pièces RFP, SAS URLs courtes |
+| IA | OpenAI / Azure OpenAI (matching, CV), Claude (RFP longs) | Via port `AiService` |
+| Auth prod | Entra ID + OAuth2 Resource Server | SSO entreprise |
+| Secrets | `.env` local, Azure Key Vault prod | Clés API, JWT, DB |
+| Observabilité | Application Insights, logs structurés | Santé, latence IA, erreurs |
+| CI/CD | GitHub Actions ou Azure DevOps | Build, tests, déploiement staging/prod |
+| Cache (phase avancée) | Redis | Recherches et listes fréquentes |
+| Recherche avancée | MySQL FULLTEXT ou Elasticsearch | Recherche candidats à grande échelle |
+
+---
+
+## 6. Backend — architecture hexagonale
+
+**Modules Maven (dépendance vers le bas uniquement)**
+
+```
+ats-api
+  └── ats-infrastructure
+        └── ats-application
+              └── ats-domain
+                    └── ats-common
+```
+
+| Module | Contenu |
+|--------|---------|
+| **ats-domain** | Modèles métier, ports (`*Repository`, `AiService`, `FileStorage`) — **aucune dépendance Spring** |
+| **ats-application** | Cas d’usage (`*ApplicationService`), DTOs, `@Transactional` |
+| **ats-infrastructure** | JPA entities, adapters, Flyway, clients IA, Blob, JWT/Entra |
+| **ats-api** | Controllers REST `/api/v1/...`, sécurité, config, mappers |
+| **ats-common** | Exceptions, constantes, utilitaires |
+
+**Règle** : un cas d’usage appelle des **ports** ; l’**infrastructure** implémente (adapter JPA, adapter OpenAI, adapter Blob).
+
+**Exemple de flux « matching »**
+
+1. Controller `POST /v1/agent/matching`
+2. `MatchingApplicationService` charge candidat + opportunité via ports
+3. `AiService.scoreCandidateAgainstOpportunity(...)`
+4. Persistance optionnelle `MatchScore` + log `ai_request_log`
+5. Réponse JSON : score, forces, faiblesses, justification
+
+---
+
+## 7. Frontend — architecture par features
+
+```
+src/app/
+├── core/          Auth (MSAL/JWT), interceptors, guards, modèles transverses
+├── shared/        Tables, upload, badges statut, pagination, exports
+├── layout/        Auth layout, main layout (sidebar selon rôle)
+└── features/
+    ├── auth/
+    ├── dashboard/     (widgets selon rôle)
+    ├── clients/
+    ├── opportunities/
+    ├── candidates/
+    ├── applications/  (kanban pipeline)
+    ├── matching/
+    ├── rfp/
+    ├── sourcing/
+    ├── client-portal/ (espace client externe)
+    └── admin/
+```
+
+- **Lazy loading** par route : performance et séparation des bundles.
+- **Guards** : `authGuard`, `roleGuard` alignés sur les rôles Entra.
+- **Services API** : un service TypeScript par ressource REST.
+- **State** : signals Angular (pas de NgRx sauf besoin fort).
+
+**Proxy dev** : `/api` → `localhost:8080` pour le développement local.
+
+---
+
+## 8. API REST (contrat)
+
+- Préfixe : `/api/v1/`
+- Ressources au **pluriel**, **kebab-case** : `/candidates`, `/opportunities`, `/rfp-documents`
+- Périmètres par rôle dans les chemins ou la sécurité :
+  - `/v1/client/*` — portail client
+  - `/v1/agent/*` — RH et commercial
+  - `/v1/manager/*` — validations, KPIs
+  - `/v1/admin/*` — administration
+- Documentation : **OpenAPI** + Swagger UI
+- Erreurs : format standard (RFC 7807 Problem Details)
+- Pagination : `Pageable` Spring côté API pour toutes les listes volumineuses
+
+---
+
+## 9. Modèle de données (schéma cible)
+
+**CRM**
+
+- `accounts` (clients), `contacts`
+- `opportunities` (FK client, statut, profil recherché, budget, dates)
+
+**ATS**
+
+- `candidates`, `candidate_skills`
+- `resume_documents` (métadonnées + lien Blob)
+- `applications` (candidate_id, opportunity_id, statut, historique)
+
+**Matching & IA**
+
+- `match_scores` (score, justification, candidat, opportunité, auteur, date)
+- `ai_request_log` (modèle, tokens, latence, hash prompt, user_id)
+
+**RFP**
+
+- `rfp_documents`, `rfp_responses` (versions, statut validation)
+
+**Sourcing**
+
+- `sourcing_campaigns`, `sourcing_results`
+
+**Sécurité & audit**
+
+- `users`, `roles`, `user_roles` (ou mapping Entra uniquement)
+- `audit_revision` (révisions par entité)
+
+**Migrations Flyway** : `V{n}__description.sql` — jamais modifier une migration déjà appliquée.
+
+---
+
+## 10. Intégrations IA
+
+| Cas d’usage | Provider cible | Entrée | Sortie |
+|-------------|----------------|--------|--------|
+| Parsing CV | OpenAI / Azure OpenAI | Texte extrait (Tika) | Profil JSON structuré |
+| Matching 1–1 ou batch | OpenAI / Azure OpenAI | Candidat + opportunité | Score 0–100 + forces / faiblesses |
+| Analyse RFP | Claude (long contexte) | PDF / texte AO | Exigences, checklist |
+| Brouillon réponse RFP | OpenAI ou Claude | Exigences + contexte client | Sections éditables |
+
+**Garde-fous**
+
+- Prompts **versionnés** en fichiers templates (infrastructure).
+- **Anonymisation** optionnelle avant appel cloud.
+- **Fallback** provider secondaire si timeout.
+- **Rate limiting** applicatif.
+- Politique **RGPD** validée avant envoi de données personnelles.
+- En prod préférer **Azure OpenAI** (réseau, conformité, facturation unifiée).
+
+---
+
+## 11. Sécurité et conformité
+
+| Sujet | Approche |
+|-------|----------|
+| Authentification | Entra ID (OIDC), JWT Bearer sur chaque requête API |
+| Autorisation | RBAC : CLIENT, HR, SALES, MANAGER, ADMIN |
+| Isolation client | Un client ne voit que ses opportunités et profils autorisés |
+| Fichiers | Blob privé, URLs SAS courte durée |
+| Données | TLS en transit, chiffrement au repos (MySQL Azure) |
+| Audit | Table dédiée + logs applicatifs ; actions admin renforcées |
+| Secrets | Key Vault, jamais de clés API dans le dépôt Git |
+
+---
+
+## 12. Parcours applicatifs (résumé par rôle)
+
+**Client** — Portail : besoins → short-lists → validation profils → suivi AO partagés.
+
+**RH** — Sourcing / import CV → fiches candidats → pipeline candidatures → matching → proposition interne.
+
+**Commercial** — CRM clients/opportunités → matching → short-list client → module RFP (import AO, brouillon, validation manager).
+
+**Manager** — Dashboard KPIs → validations RFP et étapes sensibles → supervision équipes.
+
+**Admin** — Utilisateurs & rôles Entra → référentiels → paramétrage IA → audit & monitoring.
+
+*(Ces parcours sont le fil conducteur des écrans et des permissions.)*
+
+---
+
+## 13. Infrastructure et déploiement
+
+**Local (développement)**
+
+- Docker Compose : MySQL
+- Spring Boot `dev` + Angular `npm start`
+- `.env` à la racine du monorepo
+
+**Production (Azure)**
+
+| Composant | Service Azure |
+|-----------|---------------|
+| UI + API | Azure Container Apps ou App Service |
+| Entrée | Azure Front Door (+ CDN assets) |
+| BDD | Azure Database for MySQL Flexible Server |
+| Fichiers | Azure Blob Storage |
+| Secrets | Azure Key Vault |
+| Identité | Microsoft Entra ID (app registrations API + SPA) |
+| Monitoring | Application Insights, alertes |
+
+**CI/CD** : build Maven + npm, tests, déploiement staging, smoke tests, promotion prod.
+
+---
+
+## 14. Fonctionnalités transverses (richesse « hyper complète »)
+
+- **Notifications** : email et/ou Microsoft Teams (nouveau besoin, validation client, RFP à valider).
+- **Exports** : PDF / Excel (short-lists, pipeline, KPIs).
+- **Recherche** : full-text candidats + filtres facettes (compétences, séniorité, disponibilité).
+- **Kanban** : pipeline candidatures par opportunité.
+- **Historique** : versions réponse RFP, révisions audit sur entités critiques.
+- **Tableaux de bord** : fill rate, time-to-submit, conversion par étape, coût / volume IA.
+- **Multi-langue** (option) : i18n Angular pour UI client internationale.
+
+---
+
+## 15. Structure du dépôt (monorepo)
+
+```
+/
+├── backend/                 # Maven : common, domain, application, infrastructure, api
+├── frontend/                # Angular SPA
+├── infra/
+│   ├── mysql/init/          # Init Docker local
+│   └── azure/               # Bicep / Terraform (IaC)
+├── docs/                    # ADR, diagrammes
+├── docker-compose.yml
+├── .env.example
+└── architecture_plan.md     # Ce document (référence)
+```
+
+---
+
+## 16. Décisions d’architecture (ADR synthétiques)
+
+| # | Sujet | Décision |
+|---|-------|----------|
+| ADR-001 | Auth | Entra ID en prod ; JWT local en dev uniquement |
+| ADR-002 | Style backend | Hexagonal / ports & adapters |
+| ADR-003 | Monolithe vs microservices | **Modular monolith** jusqu’à preuve de besoin scale |
+| ADR-004 | API | REST versionnée, pas GraphQL en v1 |
+| ADR-005 | BDD | MySQL relationnel + Flyway |
+| ADR-006 | Fichiers | Azure Blob en prod |
+| ADR-007 | IA CV / matching | OpenAI ou Azure OpenAI |
+| ADR-008 | IA RFP longs | Claude |
+| ADR-009 | Recherche candidats | MySQL FULLTEXT ou Elasticsearch (selon volume) |
+| ADR-010 | Déploiement | Container Apps ou App Service + Front Door |
+
+---
+
+## 17. Qualité et conventions
+
+- **Commits** : Conventional Commits (`feat:`, `fix:`, …)
+- **Branches** : `main`, `develop`, `feature/*`, `fix/*`
+- **Tests** : ~70 % sur services applicatifs critiques ; tests API MockMvc ; tests composants clés front
+- **PR** : review obligatoire
+- **Couplage** : pas de logique métier dans les controllers ni dans les composants Angular « smart » sans service
+
+---
+
+## 18. Synthèse en une phrase
+
+Une **SPA Angular** sécurisée par **Entra** dialogue avec une **API Spring hexagonale** qui orchestre **CRM + ATS + RFP + sourcing** sur **MySQL** et **Blob**, en s’appuyant sur l’**IA de façon traçable et validée par l’humain**, le tout hébergé sur **Azure** avec **RBAC fin** par persona Client, RH, Commercial, Manager et Administrateur.
+
+---
+
+IV - Ressources pour le projet :
+Voici une estimation **réaliste** pour un projet **hyper complet** comme défini dans l'architecture cible (tous domaines, tous rôles, Azure prod, IA, RFP, sourcing, KPIs, notifications). Les durées supposent une équipe **expérimentée** et un sponsor métier disponible.
+
+---
+
+## 1. Ressources matérielles
+
+### Développement (chaque développeur)
+
+| Élément | Besoin |
+|---------|--------|
+| Poste de travail | PC ou Mac récent (4 cœurs+, **16 Go RAM minimum**, 32 Go confortable pour Docker + IDE + navigateur) |
+| Stockage | 50 Go libres (repo, Docker, caches Maven/npm) |
+| Réseau | Accès Internet stable (API IA, packages, Azure) |
+| Écran | 2 écrans recommandés (front + back / doc en parallèle) |
+
+Pas de serveur physique dédié en local : **Docker** sur la machine suffit pour MySQL.
+
+### Intégration continue (CI)
+
+| Élément | Besoin |
+|---------|--------|
+| Runners CI | 2 à 4 agents (GitHub Actions hébergés ou Azure DevOps agents) — build Maven + npm + tests |
+| Artefacts | Stockage builds (intégré GitHub/Azure, quelques Go) |
+
+### Environnements cloud (Azure — cible prod)
+
+Ordre de grandeur pour une **ESN interne** (centaines d’utilisateurs, pas millions) :
+
+| Composant | Ressource type | Ordre de grandeur |
+|-----------|----------------|-----------------|
+| API + UI | Container Apps ou App Service (2 instances staging, 2–3 prod) | 2–4 vCPU, 4–8 Go RAM par instance |
+| Base de données | Azure MySQL Flexible Server | 2 vCores, 64–128 Go stockage pour démarrer |
+| Fichiers | Blob Storage | 100 Go–1 To selon volume CV/RFP |
+| Cache (phase avancée) | Azure Cache for Redis | Petit cluster (1 Go) |
+| Recherche (si Elasticsearch) | VM managée ou Azure AI Search | Optionnel, +coût |
+| CDN / entrée | Front Door ou Application Gateway | Selon politique réseau groupe |
+| Secrets | Key Vault | Faible coût |
+| Monitoring | Application Insights | Volume logs modéré |
+
+**Budget cloud indicatif** (hors IA) : **800 € – 2 500 € / mois** en prod selon redondance, région et sizing ; **200 € – 600 € / mois** pour staging + dev.
+
+### Coût variable IA (important)
+
+| Poste | Estimation |
+|-------|------------|
+| OpenAI / Azure OpenAI | Dépend du volume : parsing CV, matching, RFP |
+| Ordre de grandeur | **500 € – 5 000 € / mois** si usage intensif (équipes RH + commerciaux actifs) |
+
+À **cadrer dès le départ** (quotas, modèles « mini » pour matching, Claude seulement pour RFP longs).
+
+---
+
+## 2. Ressources logicielles
+
+### Gratuit / open source (cœur du projet)
+
+- **JDK 21**, **Maven**, **Node.js 20 LTS**, **npm**
+- **Docker** + **Docker Compose** (MySQL local)
+- **Git** + dépôt (**GitHub** ou **Azure DevOps Repos**)
+- **Spring Boot**, **Angular**, **Flyway**, **MySQL**
+- IDE : **VS Code / Cursor**, IntelliJ (optionnel, licence payante)
+
+### Licences & services cloud (payants ou inclus groupe)
+
+| Logiciel / service | Usage |
+|--------------------|--------|
+| **Microsoft Entra ID** | SSO (souvent inclus **Microsoft 365** entreprise) |
+| **Azure** (abonnement) | Hébergement, MySQL, Blob, Key Vault, Container Apps |
+| **OpenAI** ou **Azure OpenAI** | CV, matching, brouillons |
+| **Anthropic Claude** (option) | RFP longs |
+| **GitHub** ou **Azure DevOps** | Repo, CI/CD, boards (selon organisation) |
+| **Microsoft 365** | Teams (notifications), éventuellement email transactionnel |
+| **SonarQube** / qualité code | Recommandé en CI (cloud ou self-hosted) |
+| **Figma** ou équivalent | Maquettes UX (licence design) |
+
+### Outils recommandés (non obligatoires)
+
+- **Postman** ou Bruno — tests API  
+- **Swagger UI** — déjà prévu avec SpringDoc  
+- **Terraform / Bicep** — IaC Azure  
+- **Sentry** ou App Insights — erreurs front/back  
+
+### Pas nécessaire au départ
+
+- Kubernetes maison (Container Apps suffit)  
+- Suite ELK complète (App Insights + logs structurés suffisent au début)  
+- NgRx, message bus type Kafka (monolithe modulaire d’abord)
+
+---
+
+## 3. Ressources humaines
+
+### Équipe cible « hyper complet » (recommandée)
+
+| Rôle | Charge | Missions |
+|------|--------|----------|
+| **Chef de projet / Product Owner** | 30–50 % | Priorisation, backlog, recette métier, lien Sales/RH |
+| **Architecte / lead technique** | 25–40 % | Architecture hexagonale, ADR, revue PR, sécurité |
+| **Développeur backend Java** | 1–2 ETP | API, domaine, Flyway, IA, intégrations |
+| **Développeur frontend Angular** | 1–2 ETP | Features, portail client, UX métier |
+| **DevOps / cloud Azure** | 30–50 % | Entra, IaC, CI/CD, staging/prod, monitoring |
+| **QA / testeur** | 50–70 % | Plans de test, automatisation API/E2E, non-régression |
+| **UX/UI designer** | 20–30 % | Parcours Client/RH/Sales, design system |
+| **Expert métier RH** | 10–20 % | Pipeline candidatures, statuts, conformité |
+| **Expert métier Sales** | 10–20 % | CRM, RFP, opportunités |
+| **Référent sécurité / DPO** | ponctuel | RGPD, IA, audit, validation Entra |
+| **Administrateur Entra / IT** | ponctuel | App registrations, groupes, policies |
+
+**Effectif total équivalent temps plein : environ 5 à 7 personnes** sur la durée du build (certaines à temps partiel).
+
+### Équipe minimale (plus long, plus de risque)
+
+| Composition | ETP |
+|-------------|-----|
+| 2 full-stack (Java + Angular) | 2 |
+| 1 DevOps (mi-temps) | 0,5 |
+| 1 PO | 0,5 |
+
+**~3 ETP** : faisable mais timeline **+40 à 60 %** et dette technique plus élevée.
+
+### Compétences clés à avoir dans l’équipe
+
+- Java/Spring Boot (sécurité OAuth2, JPA, Flyway)  
+- Angular (standalone, routing, MSAL)  
+- Azure (Entra, MySQL, Blob, Container Apps)  
+- Intégration API IA (prompts, JSON structuré, gestion coûts)  
+- Compréhension processus **ESN** (intercontrat, AO, short-list client)
+
+---
+
+## 4. Timeline possible
+
+### Scénario A — MVP production utile (usage interne ESN)
+
+**Contenu** : CRM + candidats + matching + candidatures simples + Entra + déploiement Azure staging/prod + admin minimal.
+
+| Phase | Durée | Contenu |
+|-------|-------|---------|
+| Fin CRM / API pagination | 2–3 sem. | Filtres API, fiches détail, tests |
+| Candidatures + Blob CV | 3–4 sem. | Pipeline, stockage Azure |
+| Durcissement IA + audit logs | 2 sem. | Persistance scores, logs IA |
+| Azure + CI/CD + Entra prod | 3–4 sem. | IaC, staging, smoke tests |
+| Recette + corrections | 2–3 sem. | UAT RH/Sales |
+
+**Total depuis aujourd’hui : ~3 à 4 mois** avec équipe 5–6 personnes (ou **5–6 mois** avec équipe minimale 3 ETP).
+
+---
+
+### Scénario B — Produit complet (vision architecture_plan phases 3–7)
+
+**Contenu** : tout le scénario A + RFP complet + sourcing + portail client + dashboards manager + notifications + exports + rôles RH/Sales/Manager séparés + admin riche.
+
+| Bloc | Durée indicative |
+|------|------------------|
+| MVP production (scénario A) | 3–4 mois |
+| Module RFP (IA + workflow validation) | 3–4 sem. |
+| Sourcing campagnes | 3–4 sem. |
+| Portail client (consultation, validation profils) | 4–5 sem. |
+| Tableaux de bord KPI + exports | 3–4 sem. |
+| Admin (users, référentiels, config IA) | 3–4 sem. |
+| RBAC fin + rôles Manager | 2–3 sem. |
+| Notifications (email / Teams) | 2–3 sem. |
+| Optimisation (Redis, recherche avancée) | 3–4 sem. |
+| QA renforcée + UAT + formation | 4–6 sem. |
+
+**Total depuis aujourd’hui : ~8 à 11 mois** (équipe 5–7 ETP équivalent).
+
+---
+
+### Scénario C — Hyper riche + industrialisation groupe
+
+**Contenu** : scénario B + Elasticsearch si gros volume + conformité RGPD formalisée + multi-environnements + SLA monitoring + documentation exploitation + évolutions post-lancement.
+
+| Ajout | Durée |
+|-------|-------|
+| Recherche avancée / scale | 3–4 sem. |
+| Conformité, audit, anonymisation IA | 2–3 sem. |
+| Hypercare post-go-live (3 mois) | 3 mois (parallèle) |
+
+**Total : ~10 à 14 mois** du début du projet jusqu’à une plateforme **mature** en production.
+
+---
+
+### Timeline « from scratch »
+
+| Phase | Durée |
+|-------|-------|
+| 0 Fondations | 2–3 sem. |
+| 1 Socle auth / layout | 2–3 sem. |
+| 2 CRM | 2–3 sem. |
+| 3 Candidatures | 3–4 sem. |
+| 4 IA | 4–5 sem. |
+| 5 RFP | 3–4 sem. |
+| 6 Sourcing + Azure | 3–4 sem. |
+| 7 KPI, notifs, cache | 4–6 sem. |
+| Portail client + admin + rôles fins | 8–10 sem. |
+| QA, UAT, déploiement | 6–8 sem. |
+
+**~12 à 16 mois** avec équipe 5–7 personnes.
+
+---
+
+## 5. Jalons recommandés (pour pilotage)
+
+| Jalon | Quand (depuis maintenant, scénario B) | Critère |
+|-------|--------------------------------------|---------|
+| **J1 — Staging Azure** | Mois 3–4 | RH crée candidature sur opportunité en staging |
+| **J2 — Go-live interne** | Mois 4–5 | Sales + RH en prod sur CRM + matching + pipeline |
+| **J3 — Portail client** | Mois 6–7 | Client valide une short-list en ligne |
+| **J4 — RFP** | Mois 7–8 | Import AO + brouillon validé par manager |
+| **J5 — Pilotage complet** | Mois 9–11 | KPIs, sourcing, admin, notifications |
+
+---
+
+## 6. Facteurs qui allongent ou raccourcissent le calendrier
+
+**Raccourcit**
+
+- Équipe déjà experte Java/Angular/Azure  
+- Sponsor métier disponible chaque semaine  
+- Entra et abonnement Azure déjà validés par le groupe  
+- Réutilisation de composants UI (design system tôt)  
+
+**Allonge**
+
+- Validation sécurité / DPO lente  
+- Changements de scope en cours de route  
+- Pas de DevOps dédié (déploiement manuel)  
+- Coûts IA non cadrés → refonte des flux  
+- Intégrations externes (ERP, ATS existant, LinkedIn, etc.) non prévues dans le plan  
+
+---
+
+## 7. Synthèse
+
+| Dimension | Ordre de grandeur |
+|-----------|-----------------|
+| **Matériel dev** | Postes 16–32 Go RAM ; pas de serveur on-prem |
+| **Matériel prod** | Azure managé (containers + MySQL + Blob) ~1–3 k€/mois hors IA |
+| **Logiciel** | Stack majoritairement gratuite ; coûts = Azure + M365/Entra + API IA + éventuellement DevOps/qualité |
+| **Humain** | **5–7 ETP équivalent** pour un produit hyper complet en **8–11 mois** depuis l’état actuel ; **3 ETP** possible en **12–15 mois** |
+| **Timeline réaliste** | MVP prod **3–4 mois** ; complet **8–11 mois** ; mature **10–14 mois** |
+
+
+
+
