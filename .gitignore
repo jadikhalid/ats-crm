@@ -29,3 +29,6 @@ frontend/.angular/
 
 # Azure / local
 .azure/
+
+# Script démo local (PIDs, logs)
+.demo/
